@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "stock_mcp": {
+      "command": "d:/Files/Code/Stocking/.conda/python.exe",
+      "args": ["d:/Files/Code/Stocking/src/MCP/server.py"],
+      "transport": "stdio",
+      "enabled": true
+    }
+  }
+}

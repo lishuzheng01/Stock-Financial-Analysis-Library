@@ -1,0 +1,13 @@
+pyproject.toml
+src/MCP/server.py
+src/stock_tool/AltmanZScore.py
+src/stock_tool/BeneishMScore.py
+src/stock_tool/__init__.py
+src/stock_tool/check_benford.py
+src/stock_tool/get_report_data.py
+src/stock_tool/get_stock_data.py
+src/stocking.egg-info/PKG-INFO
+src/stocking.egg-info/SOURCES.txt
+src/stocking.egg-info/dependency_links.txt
+src/stocking.egg-info/top_level.txt
+test/test_get_report.py

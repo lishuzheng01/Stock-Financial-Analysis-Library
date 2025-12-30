@@ -22,49 +22,67 @@ from stock_tool.get_report_data import get_report_data
 class ValuationAnalyzer:
     """估值分析器基类"""
 
-    def __init__(self, stock_code, silent=False):
+    def __init__(self, stock_code, silent=False, 
+                 pd_asset=None, pd_income=None, price_data=None):
         self.stock_code = stock_code
         self.silent = silent
-        self.pd_asset = None
-        self.pd_income = None
-        self.price_data = None
+        self.pd_asset = pd_asset
+        self.pd_income = pd_income
+        self.price_data = price_data
         self.results = None
 
     def load_data(self):
-        """加载财务数据和价格数据"""
+        """加载财务数据和价格数据，如果已有外部数据则跳过"""
+        if self.pd_asset is not None and self.pd_income is not None and self.price_data is not None:
+            if not self.silent:
+                print(f"使用外部提供的数据，跳过API调用...")
+            return
+
         if not self.silent:
             print(f"正在加载股票 {self.stock_code} 的财务数据和价格数据...")
 
-        self.pd_asset = get_report_data(
-            stock=self.stock_code,
-            symbol="资产负债表",
-            transpose=True
-        )
+        if self.pd_asset is None:
+            self.pd_asset = get_report_data(
+                stock=self.stock_code,
+                symbol="资产负债表",
+                transpose=True
+            )
 
-        self.pd_income = get_report_data(
-            stock=self.stock_code,
-            symbol="利润表",
-            transpose=True
-        )
+        if self.pd_income is None:
+            self.pd_income = get_report_data(
+                stock=self.stock_code,
+                symbol="利润表",
+                transpose=True
+            )
 
         # 获取最近2年的价格数据
-        from datetime import datetime, timedelta
-        end_date = datetime.now().strftime("%Y%m%d")
-        start_date = (datetime.now() - timedelta(days=730)).strftime("%Y%m%d")
+        if self.price_data is None:
+            from datetime import datetime, timedelta
+            end_date = datetime.now().strftime("%Y%m%d")
+            start_date = (datetime.now() - timedelta(days=730)).strftime("%Y%m%d")
 
-        try:
-            self.price_data = get_stock_data(
-                stock=self.stock_code,
-                start=start_date,
-                end=end_date
-            )
-        except Exception as e:
-            if not self.silent:
-                print(f"价格数据加载失败: {e}")
-            self.price_data = None
+            try:
+                self.price_data = get_stock_data(
+                    stock=self.stock_code,
+                    start=start_date,
+                    end=end_date
+                )
+            except Exception as e:
+                if not self.silent:
+                    print(f"价格数据加载失败: {e}")
+                self.price_data = None
 
         if not self.silent:
             print("数据加载完成!")
+
+    def set_data(self, pd_asset=None, pd_income=None, price_data=None):
+        """设置外部数据"""
+        if pd_asset is not None:
+            self.pd_asset = pd_asset
+        if pd_income is not None:
+            self.pd_income = pd_income
+        if price_data is not None:
+            self.price_data = price_data
 
     def get_column(self, df, cn_name, en_name):
         """灵活获取列名 (支持中英文)"""
@@ -93,7 +111,8 @@ class ValuationAnalyzer:
         return float(self.price_data['close'].iloc[-1])
 
 
-def analyze_pe_ratio(stock_code, print_output=True):
+def analyze_pe_ratio(stock_code, print_output=True, 
+                   pd_asset=None, pd_income=None, price_data=None):
     """
     市盈率分析
     PE Ratio Analysis
@@ -106,6 +125,9 @@ def analyze_pe_ratio(stock_code, print_output=True):
     Args:
         stock_code: 股票代码
         print_output: 是否打印输出
+        pd_asset: 外部提供的资产负债表数据
+        pd_income: 外部提供的利润表数据
+        price_data: 外部提供的价格数据
 
     Returns:
         (DataFrame, str): (结果数据, 报告文本)
@@ -115,7 +137,8 @@ def analyze_pe_ratio(stock_code, print_output=True):
         print("市盈率分析 - PE Ratio Analysis")
         print("=" * 80 + "\n")
 
-    analyzer = ValuationAnalyzer(stock_code, silent=not print_output)
+    analyzer = ValuationAnalyzer(stock_code, silent=not print_output, 
+                               pd_asset=pd_asset, pd_income=pd_income, price_data=price_data)
     analyzer.load_data()
 
     results = []
@@ -220,7 +243,8 @@ def analyze_pe_ratio(stock_code, print_output=True):
     return results_df, report_text
 
 
-def analyze_pb_ratio(stock_code, print_output=True):
+def analyze_pb_ratio(stock_code, print_output=True, 
+                   pd_asset=None, pd_income=None, price_data=None):
     """
     市净率分析
     PB Ratio Analysis
@@ -231,6 +255,9 @@ def analyze_pb_ratio(stock_code, print_output=True):
     Args:
         stock_code: 股票代码
         print_output: 是否打印输出
+        pd_asset: 外部提供的资产负债表数据
+        pd_income: 外部提供的利润表数据
+        price_data: 外部提供的价格数据
 
     Returns:
         (DataFrame, str): (结果数据, 报告文本)
@@ -240,7 +267,8 @@ def analyze_pb_ratio(stock_code, print_output=True):
         print("市净率分析 - PB Ratio Analysis")
         print("=" * 80 + "\n")
 
-    analyzer = ValuationAnalyzer(stock_code, silent=not print_output)
+    analyzer = ValuationAnalyzer(stock_code, silent=not print_output, 
+                               pd_asset=pd_asset, pd_income=pd_income, price_data=price_data)
     analyzer.load_data()
 
     results = []
@@ -350,7 +378,8 @@ def analyze_pb_ratio(stock_code, print_output=True):
     return results_df, report_text
 
 
-def analyze_ps_ratio(stock_code, print_output=True):
+def analyze_ps_ratio(stock_code, print_output=True, 
+                   pd_asset=None, pd_income=None, price_data=None):
     """
     市销率分析
     PS Ratio Analysis
@@ -361,6 +390,9 @@ def analyze_ps_ratio(stock_code, print_output=True):
     Args:
         stock_code: 股票代码
         print_output: 是否打印输出
+        pd_asset: 外部提供的资产负债表数据
+        pd_income: 外部提供的利润表数据
+        price_data: 外部提供的价格数据
 
     Returns:
         (DataFrame, str): (结果数据, 报告文本)
@@ -370,7 +402,8 @@ def analyze_ps_ratio(stock_code, print_output=True):
         print("市销率分析 - PS Ratio Analysis")
         print("=" * 80 + "\n")
 
-    analyzer = ValuationAnalyzer(stock_code, silent=not print_output)
+    analyzer = ValuationAnalyzer(stock_code, silent=not print_output, 
+                               pd_asset=pd_asset, pd_income=pd_income, price_data=price_data)
     analyzer.load_data()
 
     results = []
@@ -480,7 +513,8 @@ def analyze_ps_ratio(stock_code, print_output=True):
     return results_df, report_text
 
 
-def analyze_peg_ratio(stock_code, print_output=True):
+def analyze_peg_ratio(stock_code, print_output=True, 
+                   pd_asset=None, pd_income=None, price_data=None):
     """
     PEG分析
     PEG Ratio Analysis
@@ -495,6 +529,9 @@ def analyze_peg_ratio(stock_code, print_output=True):
     Args:
         stock_code: 股票代码
         print_output: 是否打印输出
+        pd_asset: 外部提供的资产负债表数据
+        pd_income: 外部提供的利润表数据
+        price_data: 外部提供的价格数据
 
     Returns:
         (DataFrame, str): (结果数据, 报告文本)
@@ -504,7 +541,8 @@ def analyze_peg_ratio(stock_code, print_output=True):
         print("PEG分析 - PEG Ratio Analysis")
         print("=" * 80 + "\n")
 
-    analyzer = ValuationAnalyzer(stock_code, silent=not print_output)
+    analyzer = ValuationAnalyzer(stock_code, silent=not print_output, 
+                               pd_asset=pd_asset, pd_income=pd_income, price_data=price_data)
     analyzer.load_data()
 
     results = []
@@ -626,7 +664,8 @@ def analyze_peg_ratio(stock_code, print_output=True):
     return results_df, report_text
 
 
-def analyze_ev_ebitda(stock_code, print_output=True):
+def analyze_ev_ebitda(stock_code, print_output=True, 
+                   pd_asset=None, pd_income=None, price_data=None):
     """
     EV/EBITDA分析
     EV/EBITDA Ratio Analysis
@@ -640,6 +679,9 @@ def analyze_ev_ebitda(stock_code, print_output=True):
     Args:
         stock_code: 股票代码
         print_output: 是否打印输出
+        pd_asset: 外部提供的资产负债表数据
+        pd_income: 外部提供的利润表数据
+        price_data: 外部提供的价格数据
 
     Returns:
         (DataFrame, str): (结果数据, 报告文本)
@@ -649,7 +691,8 @@ def analyze_ev_ebitda(stock_code, print_output=True):
         print("EV/EBITDA分析 - EV/EBITDA Ratio Analysis")
         print("=" * 80 + "\n")
 
-    analyzer = ValuationAnalyzer(stock_code, silent=not print_output)
+    analyzer = ValuationAnalyzer(stock_code, silent=not print_output, 
+                               pd_asset=pd_asset, pd_income=pd_income, price_data=price_data)
     analyzer.load_data()
 
     results = []

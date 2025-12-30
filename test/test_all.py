@@ -445,7 +445,15 @@ def test_valuation_ratios():
         for stock in TEST_STOCKS:
             print(f"\n{SHORT_SEP}")
             print(f"Testing {func_name} for {stock}")
-            success, result = safe_test(func, stock, print_output=False)
+            
+            # 获取预加载的数据
+            pd_asset = data_cache["balance_sheet"].get(stock)
+            pd_income = data_cache["income_statement"].get(stock)
+            price_data = data_cache["stock_data"].get(stock)
+            
+            # 使用预加载的数据进行测试
+            success, result = safe_test(func, stock, print_output=False, 
+                                      pd_asset=pd_asset, pd_income=pd_income, price_data=price_data)
 
             if success:
                 df, report_text = result
@@ -476,7 +484,15 @@ def test_cashflow_analysis():
         for stock in TEST_STOCKS:
             print(f"\n{SHORT_SEP}")
             print(f"Testing {func_name} for {stock}")
-            success, result = safe_test(func, stock, print_output=False)
+            
+            # 获取预加载的数据
+            pd_asset = data_cache["balance_sheet"].get(stock)
+            pd_income = data_cache["income_statement"].get(stock)
+            pd_cashflow = data_cache["cashflow_statement"].get(stock)
+            
+            # 使用预加载的数据进行测试
+            success, result = safe_test(func, stock, print_output=False, 
+                                      pd_asset=pd_asset, pd_income=pd_income, pd_cashflow=pd_cashflow)
 
             if success:
                 df, report_text = result

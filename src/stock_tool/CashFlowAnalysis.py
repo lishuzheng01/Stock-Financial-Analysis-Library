@@ -22,39 +22,57 @@ from stock_tool.get_report_data import get_report_data
 class CashFlowAnalyzer:
     """现金流分析器基类"""
 
-    def __init__(self, stock_code, silent=False):
+    def __init__(self, stock_code, silent=False, 
+                 pd_asset=None, pd_income=None, pd_cashflow=None):
         self.stock_code = stock_code
         self.silent = silent
-        self.pd_asset = None
-        self.pd_income = None
-        self.pd_cashflow = None
+        self.pd_asset = pd_asset
+        self.pd_income = pd_income
+        self.pd_cashflow = pd_cashflow
         self.results = None
 
     def load_data(self):
-        """加载财务数据"""
+        """加载财务数据，如果已有外部数据则跳过"""
+        if self.pd_asset is not None and self.pd_income is not None and self.pd_cashflow is not None:
+            if not self.silent:
+                print(f"使用外部提供的数据，跳过API调用...")
+            return
+
         if not self.silent:
             print(f"正在加载股票 {self.stock_code} 的财务数据...")
 
-        self.pd_asset = get_report_data(
-            stock=self.stock_code,
-            symbol="资产负债表",
-            transpose=True
-        )
+        if self.pd_asset is None:
+            self.pd_asset = get_report_data(
+                stock=self.stock_code,
+                symbol="资产负债表",
+                transpose=True
+            )
 
-        self.pd_income = get_report_data(
-            stock=self.stock_code,
-            symbol="利润表",
-            transpose=True
-        )
+        if self.pd_income is None:
+            self.pd_income = get_report_data(
+                stock=self.stock_code,
+                symbol="利润表",
+                transpose=True
+            )
 
-        self.pd_cashflow = get_report_data(
-            stock=self.stock_code,
-            symbol="现金流量表",
-            transpose=True
-        )
+        if self.pd_cashflow is None:
+            self.pd_cashflow = get_report_data(
+                stock=self.stock_code,
+                symbol="现金流量表",
+                transpose=True
+            )
 
         if not self.silent:
             print("数据加载完成!")
+
+    def set_data(self, pd_asset=None, pd_income=None, pd_cashflow=None):
+        """设置外部数据"""
+        if pd_asset is not None:
+            self.pd_asset = pd_asset
+        if pd_income is not None:
+            self.pd_income = pd_income
+        if pd_cashflow is not None:
+            self.pd_cashflow = pd_cashflow
 
     def get_column(self, df, cn_name, en_name):
         """灵活获取列名 (支持中英文)"""
@@ -77,7 +95,8 @@ class CashFlowAnalyzer:
         return default
 
 
-def analyze_operating_cashflow_quality(stock_code, print_output=True):
+def analyze_operating_cashflow_quality(stock_code, print_output=True, 
+                                      pd_asset=None, pd_income=None, pd_cashflow=None):
     """
     经营现金流质量分析
     Operating Cash Flow Quality Analysis
@@ -90,6 +109,9 @@ def analyze_operating_cashflow_quality(stock_code, print_output=True):
     Args:
         stock_code: 股票代码
         print_output: 是否打印输出
+        pd_asset: 外部提供的资产负债表数据
+        pd_income: 外部提供的利润表数据
+        pd_cashflow: 外部提供的现金流量表数据
 
     Returns:
         (DataFrame, str): (结果数据, 报告文本)
@@ -99,7 +121,8 @@ def analyze_operating_cashflow_quality(stock_code, print_output=True):
         print("经营现金流质量分析 - Operating Cash Flow Quality Analysis")
         print("=" * 80 + "\n")
 
-    analyzer = CashFlowAnalyzer(stock_code, silent=not print_output)
+    analyzer = CashFlowAnalyzer(stock_code, silent=not print_output, 
+                               pd_asset=pd_asset, pd_income=pd_income, pd_cashflow=pd_cashflow)
     analyzer.load_data()
 
     results = []
@@ -236,7 +259,8 @@ def analyze_operating_cashflow_quality(stock_code, print_output=True):
     return results_df, report_text
 
 
-def analyze_free_cashflow(stock_code, print_output=True):
+def analyze_free_cashflow(stock_code, print_output=True, 
+                         pd_asset=None, pd_income=None, pd_cashflow=None):
     """
     自由现金流分析
     Free Cash Flow Analysis
@@ -250,6 +274,9 @@ def analyze_free_cashflow(stock_code, print_output=True):
     Args:
         stock_code: 股票代码
         print_output: 是否打印输出
+        pd_asset: 外部提供的资产负债表数据
+        pd_income: 外部提供的利润表数据
+        pd_cashflow: 外部提供的现金流量表数据
 
     Returns:
         (DataFrame, str): (结果数据, 报告文本)
@@ -259,7 +286,8 @@ def analyze_free_cashflow(stock_code, print_output=True):
         print("自由现金流分析 - Free Cash Flow Analysis")
         print("=" * 80 + "\n")
 
-    analyzer = CashFlowAnalyzer(stock_code, silent=not print_output)
+    analyzer = CashFlowAnalyzer(stock_code, silent=not print_output, 
+                               pd_asset=pd_asset, pd_income=pd_income, pd_cashflow=pd_cashflow)
     analyzer.load_data()
 
     results = []
@@ -396,7 +424,8 @@ def analyze_free_cashflow(stock_code, print_output=True):
     return results_df, report_text
 
 
-def analyze_cashflow_adequacy(stock_code, print_output=True):
+def analyze_cashflow_adequacy(stock_code, print_output=True, 
+                             pd_asset=None, pd_income=None, pd_cashflow=None):
     """
     现金流充足率分析
     Cash Flow Adequacy Analysis
@@ -410,6 +439,9 @@ def analyze_cashflow_adequacy(stock_code, print_output=True):
     Args:
         stock_code: 股票代码
         print_output: 是否打印输出
+        pd_asset: 外部提供的资产负债表数据
+        pd_income: 外部提供的利润表数据
+        pd_cashflow: 外部提供的现金流量表数据
 
     Returns:
         (DataFrame, str): (结果数据, 报告文本)
@@ -419,7 +451,8 @@ def analyze_cashflow_adequacy(stock_code, print_output=True):
         print("现金流充足率分析 - Cash Flow Adequacy Analysis")
         print("=" * 80 + "\n")
 
-    analyzer = CashFlowAnalyzer(stock_code, silent=not print_output)
+    analyzer = CashFlowAnalyzer(stock_code, silent=not print_output, 
+                               pd_asset=pd_asset, pd_income=pd_income, pd_cashflow=pd_cashflow)
     analyzer.load_data()
 
     results = []
@@ -572,7 +605,8 @@ def analyze_cashflow_adequacy(stock_code, print_output=True):
     return results_df, report_text
 
 
-def analyze_cash_conversion_cycle(stock_code, print_output=True):
+def analyze_cash_conversion_cycle(stock_code, print_output=True, 
+                                 pd_asset=None, pd_income=None, pd_cashflow=None):
     """
     现金循环周期分析
     Cash Conversion Cycle Analysis
@@ -586,6 +620,9 @@ def analyze_cash_conversion_cycle(stock_code, print_output=True):
     Args:
         stock_code: 股票代码
         print_output: 是否打印输出
+        pd_asset: 外部提供的资产负债表数据
+        pd_income: 外部提供的利润表数据
+        pd_cashflow: 外部提供的现金流量表数据
 
     Returns:
         (DataFrame, str): (结果数据, 报告文本)
@@ -595,7 +632,8 @@ def analyze_cash_conversion_cycle(stock_code, print_output=True):
         print("现金循环周期分析 - Cash Conversion Cycle Analysis")
         print("=" * 80 + "\n")
 
-    analyzer = CashFlowAnalyzer(stock_code, silent=not print_output)
+    analyzer = CashFlowAnalyzer(stock_code, silent=not print_output, 
+                               pd_asset=pd_asset, pd_income=pd_income, pd_cashflow=pd_cashflow)
     analyzer.load_data()
 
     results = []

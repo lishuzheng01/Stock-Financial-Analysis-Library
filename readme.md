@@ -1,71 +1,181 @@
+# Stock Financial Analysis Library
 
-# Altman Z-Score 分析工具
+一个纯Python的中国股票财务分析库,提供全面的财务指标计算和风险分析功能。
+
+## 功能特性
+
+### 数据获取
+- 多数据源股票价格数据 (akshare + yfinance)
+- 财务报表数据获取 (资产负债表/利润表/现金流量表)
+
+### 风险分析
+- Altman Z-Score 破产风险分析
+- Beneish M-Score 财务造假检测
+- Benford's Law 数据真实性验证
+
+### 财务分析
+- **杜邦分析**: 3因素和5因素ROE分解
+- **盈利能力**: 毛利率/净利率/ROE/ROA/ROIC
+- **估值分析**: PE/PB/PS/PEG/EV/EBITDA
+- **现金流分析**: 经营现金流质量/自由现金流/充足率/周期
+
+## 安装
+
+### 使用pip
+```bash
+pip install -e .
+```
+
+### 手动安装依赖
+```bash
+pip install -r requirements.txt
+```
+
+## 快速开始
+
+### 1. 数据获取
 
 ```python
-from stock_tool.AltmanZScore import analyze_altman_zscore
-# 获取数据和报告
-data, report = analyze_altman_zscore("600519")
-# 访问数据
-latest_zscore = data.iloc[0]['Z-Score']
-# 保存报告到文件
-with open('report.txt', 'w', encoding='utf-8') as f:
-    f.write(report)
-# 不打印到控制台，静默模式
-data, report = analyze_altman_zscore("600519", print_output=False)
+from stock_tool import get_stock_data, get_report_data
+
+# 获取股票价格数据
+price_data = get_stock_data("600519", "20230101", "20231231", source='auto')
+
+# 获取财务报表
+balance_sheet = get_report_data("600519", "资产负债表", source='akshare')
+income_statement = get_report_data("600519", "利润表")
+cashflow = get_report_data("600519", "现金流量表")
 ```
 
-# Beneish M-Score 分析工具
-
-``` python
-# 从其他文件导入
-from stock_tool.BeneishMScore import analyze_beneish_mscore
-
-# 获取数据和报告（打印输出）
-data, report = analyze_beneish_mscore("600519")
-
-# 访问数据
-latest_mscore = data.iloc[-1]['M-Score']
-
-# 保存报告到文件
-with open('report.txt', 'w', encoding='utf-8') as f:
-    f.write(report)
-
-# 静默模式（不打印任何输出）
-data, report = analyze_beneish_mscore("600519", print_output=False)
-
-```
+### 2. 风险分析
 
 ```python
-# get stock data
-from stock_tool.StockData import get_stock_data
-# 获取股票数据（例如：600519 贵州茅台）
-获取股票数据并处理为 Backtrader 格式
-    参数:
-        stock: 股票代码
-        start: 开始日期 (YYYYMMDD)
-        end: 结束日期 (YYYYMMDD)
-    返回:
-        df = df[['open', 'high', 'low', 'close', 'volume']].astype(float)
-    Demo:
-    df = get_stock_data(stock="600519", start="20200101", end="20240101")
-    # 查看数据前五行
-    print(df.head())
+from stock_tool import analyze_altman_zscore, analyze_beneish_mscore
 
+# Altman Z-Score 破产风险
+results_df, report = analyze_altman_zscore("600519")
+print(report)
+
+# Beneish M-Score 造假风险
+results_df, report = analyze_beneish_mscore("600519")
+print(report)
 ```
+
+### 3. 杜邦分析
 
 ```python
-# get stock data
-from stock_tool.StockData import get_stock_data
-# 获取股票数据（例如：600519 贵州茅台）
-stock_data = get_stock_data("600519")
-# 查看数据前五行
-print(stock_data.head())
+from stock_tool import analyze_dupont_roe_3factor, analyze_dupont_roe_5factor
 
+# 3因素杜邦分析
+results_df, report = analyze_dupont_roe_3factor("600519")
+
+# 5因素杜邦分析
+results_df, report = analyze_dupont_roe_5factor("600519")
 ```
+
+### 4. 盈利能力分析
 
 ```python
-# check_benford
-from stock_tool.BenfordCheck import check_benford
-# 检查股票数据的 Benford 分布
-check_benford(stock_data)
+from stock_tool import (
+    analyze_gross_margin,
+    analyze_net_margin,
+    analyze_roe,
+    analyze_roa,
+    analyze_roic
+)
+
+# 毛利率分析
+results_df, report = analyze_gross_margin("600519")
+
+# ROE分析
+results_df, report = analyze_roe("600519")
 ```
+
+### 5. 估值分析
+
+```python
+from stock_tool import (
+    analyze_pe_ratio,
+    analyze_pb_ratio,
+    analyze_ps_ratio,
+    analyze_peg_ratio,
+    analyze_ev_ebitda
+)
+
+# PE市盈率分析
+results_df, report = analyze_pe_ratio("600519")
+
+# PEG分析
+results_df, report = analyze_peg_ratio("600519")
+```
+
+### 6. 现金流分析
+
+```python
+from stock_tool import (
+    analyze_operating_cashflow_quality,
+    analyze_free_cashflow,
+    analyze_cashflow_adequacy,
+    analyze_cash_conversion_cycle
+)
+
+# 经营现金流质量
+results_df, report = analyze_operating_cashflow_quality("600519")
+
+# 自由现金流分析
+results_df, report = analyze_free_cashflow("600519")
+```
+
+## API文档
+
+### 数据获取函数
+
+#### get_stock_data(stock, start, end, source='auto')
+获取股票价格数据
+
+**参数**:
+- `stock`: 股票代码 (A股6位数字,如600519; 港股如0700.HK; 美股如AAPL)
+- `start`: 开始日期 (YYYYMMDD格式)
+- `end`: 结束日期 (YYYYMMDD格式)
+- `source`: 数据源 ('auto'/'akshare'/'yfinance')
+
+**返回**: pandas.DataFrame
+
+#### get_report_data(stock, symbol, transpose=True, source='auto')
+获取财务报表数据
+
+**参数**:
+- `stock`: 股票代码
+- `symbol`: 报表类型 ("资产负债表"/"利润表"/"现金流量表")
+- `transpose`: 是否转置数据
+- `source`: 数据源
+
+**返回**: pandas.DataFrame
+
+### 分析函数返回值
+所有分析函数返回 `(DataFrame, str)` 元组:
+- `DataFrame`: 详细计算结果数据
+- `str`: 格式化的分析报告文本
+
+## 数据源说明
+
+| 数据源 | 行情数据 | 财报数据 | 备注 |
+|--------|---------|---------|------|
+| akshare | ✅ A股 | ✅ A股 | 默认数据源 |
+| yfinance | ✅ 全球 | ❌ 不支持A股财报 | 行情数据备援 |
+
+## 依赖要求
+
+- Python >= 3.8
+- pandas >= 1.3.0
+- numpy >= 1.20.0
+- akshare >= 1.10.0
+- yfinance >= 0.2.0
+
+## 许可证
+
+MIT License
+
+## 贡献
+
+欢迎提交Issue和Pull Request!

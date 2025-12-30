@@ -1,13 +1,47 @@
-# pyproject.toml
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "stocking"
-version = "0.1.0"
-description = "股票财务分析工具"
-dependencies = []  # 可选，如果你有外部依赖
+name = "stock-financial-analysis"
+version = "1.0.0"
+description = "A pure Python library for Chinese stock financial analysis"
+readme = "readme.md"
+requires-python = ">=3.8"
+license = {text = "MIT"}
+authors = [
+    {name = "Financial Analysis Team"}
+]
+keywords = ["finance", "stock", "analysis", "china", "a-share"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Financial and Insurance Industry",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+]
+
+dependencies = [
+    "pandas>=1.3.0",
+    "numpy>=1.20.0",
+    "akshare>=1.10.0",
+    "yfinance>=0.2.0",
+    "requests>=2.26.0",
+    "urllib3>=1.26.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "black>=22.0.0",
+    "flake8>=4.0.0",
+]
+viz = [
+    "matplotlib>=3.3.0",
+]
 
 [tool.setuptools.packages.find]
 where = ["src"]

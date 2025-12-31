@@ -22,7 +22,7 @@ from stock_tool import (
 
     # Risk Analysis
     analyze_altman_zscore,
-    BeneishMScore_check,
+    beneish_mscore_check,
     check_benford,
 
     # Profitability Analysis
@@ -349,8 +349,8 @@ def test_risk_analysis():
 
         # Test 2: Beneish M-Score (Note: This function only prints, doesn't return data)
         print(f"\n{SHORT_SEP}")
-        print(f"Testing BeneishMScore_check for {stock}")
-        print(f"  Note: BeneishMScore_check only prints output, doesn't return data")
+        print(f"Testing beneish_mscore_check for {stock}")
+        print(f"  Note: beneish_mscore_check only prints output, doesn't return data")
         print(f"  Skipping detailed testing for this function")
         test_results["passed"] += 1
 

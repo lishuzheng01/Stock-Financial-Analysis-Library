@@ -512,7 +512,7 @@ def analyze_beneish_mscore(stock_code, print_output=True):
     return results_df, report_text
 
 
-def BeneishMScore_check(stock):
+def beneish_mscore_check(stock):
     """
     检查股票的Beneish M-Score（保持向后兼容）
     Check stock's Beneish M-Score (backward compatibility)
@@ -521,7 +521,7 @@ def BeneishMScore_check(stock):
         stock: 股票代码 (Stock code)
     
     Demo:
-        BeneishMScore_check("600519")
+        beneish_mscore_check("600519")
     """
     analyzer = BeneishMScore(stock, silent=False)
     analyzer.generate_report()

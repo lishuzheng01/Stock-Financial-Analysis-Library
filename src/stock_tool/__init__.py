@@ -2,7 +2,7 @@
 from .get_report_data import get_report_data
 from .get_stock_data import get_stock_data
 from .AltmanZScore import analyze_altman_zscore
-from .BeneishMScore import BeneishMScore_check
+from .BeneishMScore import BeneishMScore_check, analyze_beneish_mscore
 from .check_benford import check_benford
 
 # DuPont Analysis (杜邦分析)
@@ -42,6 +42,7 @@ __all__ = [
     # Risk analysis
     'analyze_altman_zscore',
     'BeneishMScore_check',
+    'analyze_beneish_mscore',
     'check_benford',
 
     # DuPont Analysis

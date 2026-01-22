@@ -3,7 +3,7 @@ from .get_report_data import get_report_data
 from .get_stock_data import get_stock_data
 from .AltmanZScore import analyze_altman_zscore
 from .BeneishMScore import analyze_beneish_mscore, beneish_mscore_check
-from .check_benford import check_benford
+from .CheckBenford import check_benford
 
 # DuPont Analysis (杜邦分析)
 from .DuPontAnalysis import analyze_dupont_roe_3factor, analyze_dupont_roe_5factor

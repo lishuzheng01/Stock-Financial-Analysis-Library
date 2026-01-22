@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(du:*)",
+      "Bash(python -m pytest test/test_get_report.py -v)",
+      "Bash(pip install:*)",
+      "Bash(python -m pytest test/test_all.py -v --tb=short)",
+      "Bash(tree:*)",
+      "Bash(ls:*)"
+    ]
+  }
+}

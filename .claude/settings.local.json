@@ -6,7 +6,8 @@
       "Bash(pip install:*)",
       "Bash(python -m pytest test/test_all.py -v --tb=short)",
       "Bash(tree:*)",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "Bash(python:*)"
     ]
   }
 }
